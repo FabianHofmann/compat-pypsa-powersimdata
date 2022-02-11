@@ -6,6 +6,8 @@ Created on Thu Jan 20 21:00:38 2022.
 @author: fabian
 """
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy import crs as ccrs
@@ -36,6 +38,10 @@ class HandlerCircle(HandlerPatch):
 
 
 if __name__ == "__main__":
+
+    figures = Path("../figures/")
+    if not figures.exists():
+        figures.mkdir()
 
     scenario = load_scenario(interconnect=INTERCONNECT)
     n = export_to_pypsa(scenario)
@@ -74,4 +80,4 @@ if __name__ == "__main__":
         frameon=False,
     )
 
-    fig.savefig(f"{INTERCONNECT}-grid.pdf", bbox_inches="tight")
+    fig.savefig(figures / f"{INTERCONNECT}-grid.pdf", bbox_inches="tight")

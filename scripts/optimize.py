@@ -6,6 +6,8 @@ Created on Fri Feb  4 15:16:47 2022.
 @author: fabian
 """
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy import crs as ccrs
@@ -37,11 +39,21 @@ def recisum(ds):
 
 if __name__ == "__main__":
 
+    figures = Path("../figures")
+    if not figures.exists():
+        figures.mkdir()
+
+    networks = Path("../networks")
+    if not figures.exists():
+        figures.mkdir()
+
     scenario = load_scenario(interconnect=INTERCONNECT)
 
     # %%
     n = export_to_pypsa(scenario)
-    n.snapshots = n.snapshots[:NSNAPSHOT]
+
+    if NSNAPSHOT:
+        n.snapshots = n.snapshots[:NSNAPSHOT]
 
     if GROUP_BRANCHES:
         for c in n.branch_components:
@@ -103,6 +115,12 @@ if __name__ == "__main__":
         n.generators_t.p *= n.generators.sign
 
     # =========================================================================
+    # STORE THE NETWORK
+    # =========================================================================
+
+    n.export_to_netcdf(networks / f"{INTERCONNECT}-optimized.nc")
+
+    # =========================================================================
     # PLOT THE NETWORK
     # =========================================================================
 
@@ -135,4 +153,4 @@ if __name__ == "__main__":
         axes.ravel()[-1].axis("off")
 
     fig.tight_layout()
-    fig.savefig(f"{INTERCONNECT}-optimal-production.pdf")
+    fig.savefig(figures / f"{INTERCONNECT}-optimal-production.pdf")
