@@ -38,7 +38,7 @@ if __name__ == "__main__":
     scenario = load_scenario(interconnect=INTERCONNECT)
 
     # %%
-    n = export_to_pypsa(scenario)
+    n = export_to_pypsa(scenario, skip_substations=not CLUSTER)
 
     if NSNAPSHOT:
         n.snapshots = n.snapshots[:NSNAPSHOT]
