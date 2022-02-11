@@ -9,10 +9,9 @@ Created on Thu Jan 20 21:00:38 2022.
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy import crs as ccrs
+from common import load_scenario
 from matplotlib.legend_handler import HandlerPatch
 from powersimdata.input.export_data import export_to_pypsa
-
-from common import load_scenario
 
 INTERCONNECT = "Texas"
 

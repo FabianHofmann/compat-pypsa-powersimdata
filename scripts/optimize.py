@@ -9,10 +9,9 @@ Created on Fri Feb  4 15:16:47 2022.
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy import crs as ccrs
+from common import load_scenario
 from powersimdata.input.export_data import export_to_pypsa
 from pypsa.networkclustering import get_clustering_from_busmap
-
-from common import load_scenario
 
 INTERCONNECT = "Texas"
 GROUP_BRANCHES = True
