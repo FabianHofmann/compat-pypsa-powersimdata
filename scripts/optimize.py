@@ -6,12 +6,8 @@ Created on Fri Feb  4 15:16:47 2022.
 @author: fabian
 """
 
-from pathlib import Path
-
-import matplotlib.pyplot as plt
 import numpy as np
-from cartopy import crs as ccrs
-from common import load_scenario
+from common import load_scenario, networks
 from powersimdata.input.export_data import export_to_pypsa
 from pypsa.networkclustering import get_clustering_from_busmap
 
@@ -19,8 +15,8 @@ INTERCONNECT = "Texas"
 GROUP_BRANCHES = True
 CLUSTER = False
 LOAD_SHEDDING = True
-NSNAPSHOT = 500
-NHORIZON = 5
+NSNAPSHOT = 100
+NHORIZON = 2
 
 SOLVER_PARAMS = {
     "crossover": 0,
@@ -38,14 +34,6 @@ def recisum(ds):
 
 
 if __name__ == "__main__":
-
-    figures = Path("../figures")
-    if not figures.exists():
-        figures.mkdir()
-
-    networks = Path("../networks")
-    if not figures.exists():
-        figures.mkdir()
 
     scenario = load_scenario(interconnect=INTERCONNECT)
 
@@ -114,43 +102,4 @@ if __name__ == "__main__":
         # calculate back the net production in MW
         n.generators_t.p *= n.generators.sign
 
-    # =========================================================================
-    # STORE THE NETWORK
-    # =========================================================================
-
     n.export_to_netcdf(networks / f"{INTERCONNECT}-optimized.nc")
-
-    # =========================================================================
-    # PLOT THE NETWORK
-    # =========================================================================
-
-    bus_scale = 5e-4
-    production = n.generators_t.p.mean()
-    production = n.generators.assign(p=production).groupby(["bus", "carrier"]).p.sum()
-
-    nrows = 2
-    ncols = (len(n.carriers) + 1) // 2
-
-    fig, axes = plt.subplots(
-        nrows, ncols, figsize=(20, 10), subplot_kw={"projection": ccrs.PlateCarree()}
-    )
-
-    for i, c in enumerate(n.carriers.index):
-        ax = axes.ravel()[i]
-
-        n.plot(
-            ax=ax,
-            bus_sizes=production.loc[:, c] * bus_scale,
-            bus_colors=n.carriers.color[c],
-            margin=0.0,
-            color_geomap=True,
-            title=n.carriers.nice_name[c],
-            bus_alpha=0.7,
-            line_colors="grey",
-            line_widths=0.6,
-        )
-    if ncols * nrows > len(n.carriers):
-        axes.ravel()[-1].axis("off")
-
-    fig.tight_layout()
-    fig.savefig(figures / f"{INTERCONNECT}-optimal-production.pdf")

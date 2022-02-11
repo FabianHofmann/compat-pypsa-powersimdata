@@ -5,6 +5,8 @@ Created on Fri Feb 11 11:24:37 2022.
 
 @author: fabian
 """
+from pathlib import Path
+
 from powersimdata import Scenario
 
 
@@ -34,3 +36,13 @@ def load_scenario(interconnect="Western"):
     scenario.set_base_profile("wind", "vJan2021")
 
     return scenario
+
+
+figures = Path("../figures")
+if not figures.exists():
+    figures.mkdir()
+
+
+networks = Path("../networks")
+if not networks.exists():
+    networks.mkdir()

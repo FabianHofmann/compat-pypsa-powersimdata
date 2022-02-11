@@ -6,12 +6,10 @@ Created on Thu Jan 20 21:00:38 2022.
 @author: fabian
 """
 
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy import crs as ccrs
-from common import load_scenario
+from common import figures, load_scenario
 from matplotlib.legend_handler import HandlerPatch
 from powersimdata.input.export_data import export_to_pypsa
 
@@ -38,10 +36,6 @@ class HandlerCircle(HandlerPatch):
 
 
 if __name__ == "__main__":
-
-    figures = Path("../figures/")
-    if not figures.exists():
-        figures.mkdir()
 
     scenario = load_scenario(interconnect=INTERCONNECT)
     n = export_to_pypsa(scenario)
