@@ -6,13 +6,13 @@ Created on Fri Feb  4 15:16:47 2022.
 @author: fabian
 """
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 from cartopy import crs as ccrs
-from powersimdata import Scenario
 from powersimdata.input.export_data import export_to_pypsa
 from pypsa.networkclustering import get_clustering_from_busmap
+
+from common import load_scenario
 
 INTERCONNECT = "Texas"
 GROUP_BRANCHES = True
@@ -29,34 +29,6 @@ SOLVER_PARAMS = {
 }
 
 
-def load_scenario(interconnect="Western"):
-    """
-    This code is copied from https://breakthrough-
-    energy.github.io/docs/powersimdata/scenario.html#creating-a-scenario.
-    """
-    scenario = Scenario()
-    # print name of Scenario object state
-    print(scenario.state.name)
-
-    # Start building a scenario
-    scenario.set_grid(grid_model="usa_tamu", interconnect=interconnect)
-
-    # set plan and scenario names
-    scenario.set_name("test", "dummy")
-    # set start date, end date and interval
-    scenario.set_time("2016-08-01 00:00:00", "2016-08-31 23:00:00", "24H")
-    # set demand profile version
-    scenario.set_base_profile("demand", "vJan2021")
-    # set hydro profile version
-    scenario.set_base_profile("hydro", "vJan2021")
-    # set solar profile version
-    scenario.set_base_profile("solar", "vJan2021")
-    # set wind profile version
-    scenario.set_base_profile("wind", "vJan2021")
-
-    return scenario
-
-
 def recisum(ds):
     """
     Take the "reciprocal" sum for parallel resistances.
@@ -67,7 +39,6 @@ def recisum(ds):
 if __name__ == "__main__":
 
     scenario = load_scenario(interconnect=INTERCONNECT)
-    grid = scenario.get_grid()
 
     # %%
     n = export_to_pypsa(scenario)
