@@ -14,6 +14,8 @@ from powersimdata.input.export_data import export_to_pypsa
 
 from common import load_scenario
 
+INTERCONNECT = "Texas"
+
 
 def axes2pt(fig, ax):
     return np.diff(ax.transData.transform([(0, 0), (0, 1)]), axis=0)[0][1] * (
@@ -35,44 +37,42 @@ class HandlerCircle(HandlerPatch):
 
 
 if __name__ == "__main__":
-    interconnects = ["Texas"]
-    for interconnect in interconnects:
 
-        scenario = load_scenario(interconnect=interconnect)
-        n = export_to_pypsa(scenario)
+    scenario = load_scenario(interconnect=INTERCONNECT)
+    n = export_to_pypsa(scenario)
 
-        fig, ax = plt.subplots(
-            figsize=(10, 10), subplot_kw={"projection": ccrs.PlateCarree()}
-        )
-        if interconnect == "Texas":
-            bus_scale = 1e4
-        else:
-            bus_scale = 5e3
+    fig, ax = plt.subplots(
+        figsize=(10, 10), subplot_kw={"projection": ccrs.PlateCarree()}
+    )
+    if INTERCONNECT == "Texas":
+        bus_scale = 1e4
+    else:
+        bus_scale = 5e3
 
-        n.plot(
-            bus_sizes=n.generators.groupby(["bus", "carrier"]).p_nom.sum() / bus_scale,
-            ax=ax,
-            margin=0.1,
-            color_geomap=True,
-        )
+    n.plot(
+        bus_sizes=n.generators.groupby(["bus", "carrier"]).p_nom.sum() / bus_scale,
+        ax=ax,
+        margin=0.1,
+        color_geomap=True,
+    )
 
-        refsize = 500
-        radius = (refsize / bus_scale) ** 0.5
-        unit = "MW"
-        handles = [plt.Circle((0, 0), radius, facecolor=c) for c in n.carriers.color]
-        labels = list(n.carriers.nice_name)
+    refsize = 500
+    radius = (refsize / bus_scale) ** 0.5
+    unit = "MW"
+    handles = [plt.Circle((0, 0), radius, facecolor=c) for c in n.carriers.color]
+    labels = list(n.carriers.nice_name)
 
-        handles.append(plt.Circle((0, 0), radius, facecolor="white", edgecolor="k"))
-        labels.append(f"{refsize} {unit}")
+    handles.append(plt.Circle((0, 0), radius, facecolor="white", edgecolor="k"))
+    labels.append(f"{refsize} {unit}")
 
-        ax.legend(
-            handles,
-            labels,
-            handler_map={plt.Circle: HandlerCircle()},
-            loc="upper center",
-            bbox_to_anchor=(0.5, 0),
-            ncol=5,
-            frameon=False,
-        )
+    ax.legend(
+        handles,
+        labels,
+        handler_map={plt.Circle: HandlerCircle()},
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0),
+        ncol=5,
+        frameon=False,
+    )
 
-        fig.savefig(f"{interconnect}-grid.pdf", bbox_inches="tight")
+    fig.savefig(f"{INTERCONNECT}-grid.pdf", bbox_inches="tight")
