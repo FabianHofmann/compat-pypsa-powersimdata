@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     scenario = load_scenario(interconnect=INTERCONNECT)
     n = export_to_pypsa(scenario)
-
+    # %%
     fig, ax = plt.subplots(
         figsize=(10, 10), subplot_kw={"projection": ccrs.PlateCarree()}
     )
@@ -48,8 +48,13 @@ if __name__ == "__main__":
     else:
         bus_scale = 5e3
 
+    line_scale = 1e3
+
     n.plot(
         bus_sizes=n.generators.groupby(["bus", "carrier"]).p_nom.sum() / bus_scale,
+        bus_alpha=0.7,
+        line_widths=n.lines.s_nom / line_scale,
+        line_colors="teal",
         ax=ax,
         margin=0.1,
         color_geomap=True,
