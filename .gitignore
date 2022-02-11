@@ -1,3 +1,6 @@
 *.pdf
+*.nc
 __pycache__
 scripts/__pycache__
+figures/
+networks/
