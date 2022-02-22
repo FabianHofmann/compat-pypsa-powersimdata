@@ -39,7 +39,7 @@ if __name__ == "__main__":
             title=n.carriers.nice_name[c],
             bus_alpha=0.7,
             line_colors="darkslategrey",
-            line_widths=0.6,
+            line_widths=0.3,
         )
 
     ax = axes.ravel()[i + 1]
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         title="Load",
         bus_alpha=0.7,
         line_colors="darkslategrey",
-        line_widths=0.6,
+        line_widths=0.3,
     )
 
     if ncols * nrows > (len(n.carriers) + 1):
@@ -81,3 +81,18 @@ if __name__ == "__main__":
     )
     fig.tight_layout()
     fig.savefig(figures / f"{INTERCONNECT}-optimal-flow.pdf")
+
+    # %%
+
+    fig, ax = plt.subplots(figsize=(15, 8))
+    p = n.generators_t.p.groupby(n.generators.carrier, axis=1).sum()
+
+    (
+        p.rename(columns=n.carriers.nice_name)
+        .resample("d")
+        .mean()
+        .plot.area(ax=ax, color=n.carriers.color[p.columns])
+    )
+
+    fig.tight_layout()
+    fig.savefig(figures / f"{INTERCONNECT}-optimal-production-profile.pdf")
