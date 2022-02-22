@@ -16,6 +16,7 @@ GROUP_BRANCHES = True
 CLUSTER = True
 LOAD_SHEDDING = True
 CORRECT_AVAILABILITY = True
+IGNORE_COMMITTABLES = True  # Make a LP instead of a MILP
 NSNAPSHOT = -1
 NHORIZON = 50
 
@@ -50,6 +51,10 @@ if __name__ == "__main__":
             upper=n.generators_t.p_max_pu.min()
         )
         n.generators.p_min_pu.update(upper)
+
+    if IGNORE_COMMITTABLES:
+        n.generators.committable = False
+        n.generators.p_min_pu = 0
 
     if GROUP_BRANCHES:
         for c in n.branch_components:
