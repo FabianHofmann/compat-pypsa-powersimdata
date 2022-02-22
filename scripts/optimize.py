@@ -11,11 +11,12 @@ from common import load_scenario, networks
 from powersimdata.input.export_data import export_to_pypsa
 from pypsa.networkclustering import get_clustering_from_busmap
 
-INTERCONNECT = "Texas"
+INTERCONNECT = "Western"
 GROUP_BRANCHES = True
-CLUSTER = False
+CLUSTER = True
 LOAD_SHEDDING = True
-NSNAPSHOT = None
+CORRECT_AVAILABILITY = True
+NSNAPSHOT = -1
 NHORIZON = 50
 
 SOLVER_PARAMS = {
@@ -42,6 +43,13 @@ if __name__ == "__main__":
 
     if NSNAPSHOT:
         n.snapshots = n.snapshots[:NSNAPSHOT]
+
+    if CORRECT_AVAILABILITY:
+        variables = n.generators_t.p_max_pu.columns
+        upper = n.generators.p_min_pu[variables].clip(
+            upper=n.generators_t.p_max_pu.min()
+        )
+        n.generators.p_min_pu.update(upper)
 
     if GROUP_BRANCHES:
         for c in n.branch_components:
@@ -91,12 +99,13 @@ if __name__ == "__main__":
         n.add("Carrier", "load", nice_name="Load Shedding", color="red")
 
     for sns in np.array_split(n.snapshots, NHORIZON):
-        n.lopf(
+        s, c = n.lopf(
             pyomo=False,
             solver_name="gurobi",
             snapshots=sns,
             solver_options=SOLVER_PARAMS,
         )
+        assert s == "ok", "Optimization failed."
 
     if LOAD_SHEDDING:
         # calculate back the net production in MW
