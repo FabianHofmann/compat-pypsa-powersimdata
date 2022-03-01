@@ -13,7 +13,7 @@ from common import figures, load_scenario
 from matplotlib.legend_handler import HandlerPatch
 from powersimdata.input.export_data import export_to_pypsa
 
-INTERCONNECT = "Texas"
+INTERCONNECT = "USA"
 
 
 def axes2pt(fig, ax):
@@ -41,14 +41,14 @@ if __name__ == "__main__":
     n = export_to_pypsa(scenario)
     # %%
     fig, ax = plt.subplots(
-        figsize=(10, 10), subplot_kw={"projection": ccrs.PlateCarree()}
+        figsize=(12, 12), subplot_kw={"projection": ccrs.PlateCarree()}
     )
     if INTERCONNECT == "Texas":
         bus_scale = 1e4
     else:
         bus_scale = 5e3
 
-    line_scale = 1e3
+    line_scale = 2e3
 
     n.plot(
         bus_sizes=n.generators.groupby(["bus", "carrier"]).p_nom.sum() / bus_scale,
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         line_widths=n.lines.s_nom / line_scale,
         line_colors="teal",
         ax=ax,
-        margin=0.1,
+        margin=0.05,
         color_geomap=True,
     )
 
