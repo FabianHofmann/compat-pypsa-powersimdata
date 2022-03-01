@@ -11,12 +11,11 @@ from common import load_scenario, networks
 from powersimdata.input.export_data import export_to_pypsa
 from pypsa.networkclustering import get_clustering_from_busmap
 
-INTERCONNECT = "Western"
-GROUP_BRANCHES = True
-CLUSTER = True
+INTERCONNECT = "Texas"
+GROUP_BRANCHES = False
+CLUSTER = False
 LOAD_SHEDDING = True
-CORRECT_AVAILABILITY = True
-IGNORE_COMMITTABLES = True  # Make a LP instead of a MILP
+IGNORE_COMMITTABLES = False  # Make a LP instead of a MILP
 NSNAPSHOT = -1
 NHORIZON = 50
 
@@ -40,17 +39,14 @@ if __name__ == "__main__":
     scenario = load_scenario(interconnect=INTERCONNECT)
 
     # %%
-    n = export_to_pypsa(scenario, skip_substations=not CLUSTER)
+    n = export_to_pypsa(
+        scenario,
+        add_substations=CLUSTER,
+        add_load_shedding=LOAD_SHEDDING,
+    )
 
     if NSNAPSHOT:
         n.snapshots = n.snapshots[:NSNAPSHOT]
-
-    if CORRECT_AVAILABILITY:
-        variables = n.generators_t.p_max_pu.columns
-        upper = n.generators.p_min_pu[variables].clip(
-            upper=n.generators_t.p_max_pu.min()
-        )
-        n.generators.p_min_pu.update(upper)
 
     if IGNORE_COMMITTABLES:
         n.generators.committable = False
@@ -87,21 +83,6 @@ if __name__ == "__main__":
         n.buses.drop(columns="name", inplace=True)
         C = get_clustering_from_busmap(n, n.buses.substation)
         n = C.network
-    else:
-        n = n[n.buses[n.buses.index != n.buses.substation].index]
-
-    if LOAD_SHEDDING:
-        n.madd(
-            "Generator",
-            n.buses.index,
-            suffix=" load shedding",
-            bus=n.buses.index,
-            sign=1e-3,
-            marginal_cost=1e2,
-            p_nom=1e9,
-            carrier="load",
-        )
-        n.add("Carrier", "load", nice_name="Load Shedding", color="red")
 
     for sns in np.array_split(n.snapshots, NHORIZON):
         s, c = n.lopf(
